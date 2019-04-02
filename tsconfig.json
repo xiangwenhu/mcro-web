@@ -1,0 +1,28 @@
+{
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"],
+  "http.proxyStrictSSL": false,
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "esnext",
+    "lib": ["es2017.object"],
+    "module": "commonjs",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "removeComments": true,
+    // "importHelpers": true,
+    // "strict": true ,
+    "strictBindCallApply": true,
+
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "esModuleInterop": true,
+
+    /* Experimental Options */
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}

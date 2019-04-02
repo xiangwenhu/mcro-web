@@ -1,0 +1,6 @@
+/src/demoConfig
+/src/config
+/node_modules
+/dist
+/src/views/index.ejs
+/src/views/mis.ejs

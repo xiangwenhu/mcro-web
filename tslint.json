@@ -1,0 +1,27 @@
+{
+  "extends": "tslint:recommended",
+  "rules": {
+    "no-any": false,
+    "quotemark": {
+      "options": ["double", "avoid-escape"]
+    },
+    "only-arrow-functions": false,
+    "no-string-literal": false,
+    "object-literal-sort-keys": false,
+    "trailing-comma": [
+      true,
+      {
+        "multiline": {
+          "objects": "never",
+          "arrays": "always",
+          "functions": "never",
+          "typeLiterals": "ignore"
+        },
+        "esSpecCompliant": true
+      }
+    ],
+    "ordered-imports": false /* import的时候按照字母顺序*/,
+    "no-console": false,
+    "object-literal-key-quotes": false
+  }
+}
