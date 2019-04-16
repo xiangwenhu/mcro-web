@@ -1,37 +1,57 @@
 import express from "express";
 import httpProxy from "http-proxy-middleware";
-import formurlencoded from "form-urlencoded";
+import * as http from "http";
 import _ from "lodash";
-import { getConfigById } from "../demoConfig/index";
 import { AppConfigs } from "../demoConfig";
 import IAppConfig, { IProxyConfig } from "../types/IAppConfig";
-import { updateWith, reMapping } from "../utils/common";
+import { updateWith, reMapping, set, get } from "../utils/common";
+import { IMapItem } from "src/types/common";
+import { dynamicHeader } from "../actions/dynamicHeader";
+import * as querystring from "querystring";
 
 function createProxyReq(path: string) {
-  return function onProxyReq(proxyReq: any, req: express.Request, res: any) {
-    // POST 请求
-    
-    if (req.method === "POST") {
-      let { body = {} } = req;
+  return function onProxyReq(
+    proxyReq: http.ClientRequest,
+    req: express.Request,
+    res: express.Response
+  ) {
+    const appId = req.cookies.appId;
+    const proxyConfig: IProxyConfig = getProxyConfigByAppId(appId, path);
 
-      const appId = req.cookies.appId;
-      const proxyConfig: IProxyConfig = getProxyConfigByAppId(appId, path);
+    if (!proxyConfig) {
+      return;
+    }
 
-      // 合并额外的字段
-      body = updateWith(body, proxyConfig.extraData);
-      // 字段重新映射
-      body = reMapping(body, proxyConfig.mapping);
+    // 额外的header, 需要读取session或者cookie
+    if (proxyConfig.dynamicHeader) {
+      dynamicHeader(proxyReq, req, res)(proxyConfig.dynamicHeader);
+    }
 
-      const bodyStr = formurlencoded(body);
-      if (req.session && req.session.token) {
-        proxyReq.setHeader("authorization", req.session.token);
+    // https://github.com/nodejitsu/node-http-proxy/issues/1279
+    const contentType = proxyReq.getHeader("content-type") as string;
+    if (
+      contentType &&
+      (contentType.includes("application/json") ||
+        contentType.includes("application/x-www-form-urlencoded"))
+    ) {
+      if (!req.body || !Object.keys(req.body).length) {
+        return;
       }
-      proxyReq.setHeader("content-type", "application/x-www-form-urlencoded");
-      proxyReq.setHeader("content-length", bodyStr.length);
-      proxyReq.write(bodyStr);
+      let body = req.body;
+      // 额外的body
+      body = updateWith(body, proxyConfig.extraBody);
+      // TODO:: 额外的body, 需要读取session或者cookie
 
+      // 字段重新映射
+      body = reMapping(body, proxyConfig.bodyMapping);
+
+      const bodyStr = contentType.includes("application/json")
+        ? JSON.stringify(body)
+        : querystring.stringify(body);
+      proxyReq.setHeader("content-length", Buffer.byteLength(bodyStr));
+      proxyReq.write(bodyStr);
       proxyReq.end();
-    } 
+    }
   };
 }
 
@@ -45,46 +65,33 @@ function readRes(proxyRes: any, callback: (data: any) => any) {
   });
 }
 
-function onProxyRes(
-  proxyRes: any,
-  req: express.Request,
-  res: express.Response
-) {
-  // 如果登录地址相同，解析res的结果
-  const appId = req.cookies.appId;
-  const config = getConfigById(appId);
-  const { login: loginConfig, logout: logoutConfig } = config.auth;
-  if ([loginConfig.url, logoutConfig.url].includes(req.originalUrl)) {
-    readRes(proxyRes, (data: any) => {
-      const body = JSON.parse(data.toString());
-      if (!_.isEmpty(loginConfig) && loginConfig.url === req.originalUrl) {
-        if (body[loginConfig.success.key] === loginConfig.success.value) {
-          loginConfig.success.data.forEach((d) => {
-            if (d.path) {
-              req.session[d.name] = _.get(body, d.path);
-            } else if (d.name && d.default) {
-              req.session[d.name] = d.default;
-            }
-          });
-        }
-        if (config.auth.acl === true) {
-          body.data = [];
-        }
-        res.json(body);
-        return;
-      } else if (
-        !_.isEmpty(logoutConfig) &&
-        logoutConfig.url === req.originalUrl
-      ) {
-        req.session.destroy(null);
-        res.json({
-          code: 0,
-          errCode: 0
+function createProxyRes(path: string) {
+  return function onProxyRes(
+    proxyRes: any,
+    req: express.Request,
+    res: express.Response
+  ) {
+    const appId = req.cookies.appId;
+    const proxyConfig: IProxyConfig = getProxyConfigByAppId(appId, path);
+
+    if (!proxyConfig) {
+      return;
+    }
+
+    // 自处理
+    if (proxyConfig.selfHandleResponse === true) {
+      try {
+        readRes(proxyRes, (data: any) => {
+          
         });
-        return;
+      } catch (err) {
+        res.json({
+          code: 99999,
+          message: err.message
+        });
       }
-    });
-  }
+    }
+  };
 }
 
 function getProxyConfigByAppId(appId, path) {
@@ -114,7 +121,7 @@ function createProxy(path: string) {
     }
     // 代理请求
     proxyConfig.onProxyReq = createProxyReq(path);
-    proxyConfig.onProxyRes = onProxyRes;
+    proxyConfig.onProxyRes = createProxyRes(path);
     httpProxy(proxyConfig)(req, res, next);
   };
 }

@@ -1,7 +1,7 @@
-import bodyParser from "body-parser";
 import express from "express";
 import sesssion from "express-session";
 import cookieParser from "cookie-parser";
+import bodyParser from "body-parser";
 import path from "path";
 import registerMiddleware from "./middleware";
 
@@ -24,6 +24,7 @@ app.use(sesssion(CONFIG));
 /*  辅助类中间件 */
 app.use(express.static("public"));
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 /* 注册定制化中间件  */
 registerMiddleware(app);

@@ -1,17 +1,33 @@
 import httpProxy from "http-proxy-middleware";
-import IKeyValue from "./common";
+import { PropertyPath } from "lodash";
+import { IDynamicObject, IMapItem } from "../types/action";
 
-interface IDataItem {
-  path?: string;
-  name: string;
-  default?: any;
+interface IHandleResponse {
+  success: {
+    key: PropertyPath;
+    value: string | number;
+    data?: IMapItem;
+  };
+  error?: {
+    key: PropertyPath,
+    value: string | number,
+    data?: IMapItem;
+  };
 }
 
 export type sessionType = "session" | "jwt";
 
 export type IProxyConfig = {
-  extraData?: any;
-  mapping?: any;
+  extraBody?: any;
+  dynamicHeader?: IDynamicObject;
+  bodyMapping?: any;
+  dynamicBody?: IDynamicObject;
+  afterResponse?: [
+    {
+      type: string;
+      handler: IHandleResponse;
+    }
+  ];
 } & httpProxy.Config;
 
 export default interface IAppConfig {
@@ -22,17 +38,5 @@ export default interface IAppConfig {
   template: string;
   proxy: {
     [key: string]: IProxyConfig;
-  };
-  auth: {
-    acl?: boolean;
-    type?: sessionType;
-    login: {
-      url: string;
-      success: IKeyValue<string, string | number> & { data: IDataItem[] };
-    };
-    logout: {
-      url: string;
-      success: IKeyValue<string, string | number>;
-    };
   };
 }
