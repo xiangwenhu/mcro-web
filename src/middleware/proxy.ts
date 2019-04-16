@@ -10,6 +10,7 @@ import { updateWith, reMapping } from "../utils/common";
 function createProxyReq(path: string) {
   return function onProxyReq(proxyReq: any, req: express.Request, res: any) {
     // POST 请求
+    
     if (req.method === "POST") {
       let { body = {} } = req;
 
@@ -30,7 +31,7 @@ function createProxyReq(path: string) {
       proxyReq.write(bodyStr);
 
       proxyReq.end();
-    }
+    } 
   };
 }
 

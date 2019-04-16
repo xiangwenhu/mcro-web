@@ -11,14 +11,16 @@ export default function preRender(
   next: express.NextFunction
 ): any {
   const curPath = req.path;
-  if (["/"].includes(curPath)) {
-    const appId = req.query.appId;
+  if (["/", "/index.html"].includes(curPath)) {
+    let appId = req.query.appId;
     const oldAppId = req.cookies.appId;
+
+    appId = appId || oldAppId;
 
     if (!appId) {
       res.render("error", {
         title: "错误页面",
-        message: "没有先关的appId"
+        message: "没有相关的appId"
       });
       return;
     }

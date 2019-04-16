@@ -4,7 +4,6 @@ import sesssion from "express-session";
 import cookieParser from "cookie-parser";
 import path from "path";
 import registerMiddleware from "./middleware";
-import resgiterRouter from "./router";
 
 const app: express.Express = express();
 
@@ -28,8 +27,5 @@ app.use(bodyParser.json());
 
 /* 注册定制化中间件  */
 registerMiddleware(app);
-
-// 注册路由
-resgiterRouter(app);
 
 app.listen(3000);
