@@ -72,7 +72,9 @@ function handlerStorage(
     switch (st.type) {
       case "session":
         const act = sessionAction[st.cmd];
-        act && act(req, data, st.data);
+        if (_.isFunction(act)) {
+          act(req, data, st.data);
+        }
         break;
       default:
         break;
