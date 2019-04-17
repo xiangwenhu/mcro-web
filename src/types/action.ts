@@ -3,6 +3,7 @@ import { PropertyPath } from "lodash";
 export enum sourceType {
   session = "session",
   cookie = "cookie",
+  config = "config",
   custom = "custom"
 }
 

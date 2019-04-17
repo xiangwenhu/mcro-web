@@ -2,7 +2,7 @@ import express from "express";
 import preRender from "./preRender";
 import proxy from "./proxy";
 import resgiterRouter from "../router";
-import afterRender from './afterRender'
+import afterRender from "./afterRender";
 
 export default function register(app: express.Express) {
   // 前置render
@@ -10,7 +10,7 @@ export default function register(app: express.Express) {
   // 代理
   proxy(app);
   // 注册路由
-  resgiterRouter(app);  
+  resgiterRouter(app);
   // 后置render
   app.use(afterRender);
   return app;

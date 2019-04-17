@@ -1,15 +1,13 @@
 import httpProxy from "http-proxy-middleware";
 import { IDynamicObject } from "../types/action";
-import { IResponseHandler, ISessionHanlder } from "./handlers";
+import { IHandlerOption } from "./handlers";
 
 export type sessionType = "session" | "jwt";
 
 export type IProxyConfig = {
-  extraBody?: any;
-  dynamicHeader?: IDynamicObject;
-  bodyMapping?: any;
   dynamicBody?: IDynamicObject;
-  afterHandlers?: Array<IResponseHandler | ISessionHanlder>;
+  afterHandlers?: IHandlerOption[];
+  beforeHandlers?: IHandlerOption[];
 } & httpProxy.Config;
 
 export default interface IAppConfig {
@@ -18,7 +16,8 @@ export default interface IAppConfig {
   domain: string;
   title: string;
   template: string;
-  proxy: {
+  proxy?: {
     [key: string]: IProxyConfig;
   };
+  configData?: any;
 }

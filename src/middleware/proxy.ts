@@ -31,6 +31,7 @@ function createProxy(path: string) {
   };
 }
 
+/*
 function preMiddlewares() {
   return function(
     req: express.Request,
@@ -39,13 +40,13 @@ function preMiddlewares() {
   ) {
     next();
   };
-}
+} */
 
 export default (app: express.Express) => {
   const configs = AppConfigs;
   configs.forEach((config: IAppConfig) => {
     Object.keys(config.proxy).forEach((path) => {
-      app.use(path, preMiddlewares(), createProxy(path));
+      app.use(path, createProxy(path));
     });
   });
 };

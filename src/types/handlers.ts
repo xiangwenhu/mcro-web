@@ -1,8 +1,21 @@
 import { PropertyPath } from "lodash";
 import { IMapItem } from "../types/action";
+import IAppConfig, { IProxyConfig } from "./IAppConfig";
 
-export interface IResponseHandler {
-  type: "response";
+export type IHandler = (
+  path: string,
+  appConfig: IAppConfig,
+  proxyConfig: IProxyConfig,
+  handlerOption: IHandlerOption
+) => any;
+
+export interface IHandlerOption {
+  type: string;
+  options: any;
+}
+
+export interface IResponseBodyHandlerOption {
+  type: "reponseBody";
   options: {
     success: {
       key: PropertyPath;
@@ -17,7 +30,15 @@ export interface IResponseHandler {
   };
 }
 
-export interface ISessionHanlder {
+export interface IRequestBodyHandlerOption {
+  type: "requestBody";
+  options?: {
+    extraBody: any;
+    bodyMapping: any;
+  };
+}
+
+export interface ISessionHanlderOption {
   type: "session";
   options: {
     type: "clear" | "set" | "delete";
