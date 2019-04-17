@@ -42,7 +42,7 @@ export default function requestBodyHandler(
     if (!_.isEmpty(handlerOption.options) && !_.isEmpty(handlerOption.options.extraBody)) {
       body = updateWith(body, handlerOption.options.extraBody);
     }
-    // TODO:: 额外的body, 需要读取session或者cookie
+    // TODO:: 额外的body, 需要读取session|cookie|config
     // 字段重新映射
     if (!_.isEmpty(handlerOption.options)  && handlerOption.options.bodyMapping) {
       body = reMapping(body, handlerOption.options.bodyMapping);
