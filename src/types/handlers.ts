@@ -21,6 +21,11 @@ export interface ISessionHanlder {
   type: "session";
   options: {
     type: "clear" | "set" | "delete";
+    success: {
+      key: PropertyPath;
+      value: string | number;
+      data?: IMapItem;
+    };
     data?: IMapItem;
   };
 }

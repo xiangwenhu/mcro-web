@@ -3,7 +3,7 @@ import * as http from "http";
 import * as querystring from "querystring";
 import { getProxyConfigByAppId } from "../../demoConfig";
 import { IProxyConfig } from "../../types/IAppConfig";
-import { dynamicHeader } from "../../actions/dynamicHeader";
+import { dynamicHeader } from "../../handlers/dynamicHeader";
 import { updateWith, reMapping } from "../../utils/common";
 
 export default function createProxyReq(path: string) {

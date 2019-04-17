@@ -3,8 +3,8 @@ import * as http from "http";
 import { IProxyConfig } from "../../types/IAppConfig";
 import readResponse from "./readResponse";
 import { getProxyConfigByAppId } from "../../demoConfig";
-import { IResponseHandler } from "../../types/handlers";
-import { get, set } from "../../utils/common";
+import { IResponseHandler, ISessionHanlder } from "../../types/handlers";
+import { get, set, emptyFunction } from "../../utils/common";
 import { IMapItem } from "src/types/action";
 
 function getHanldersContext(
@@ -16,16 +16,27 @@ function getHanldersContext(
   return function excuteHandlers(
     path: string,
     proxyConfig: IProxyConfig,
-    handlers: Array<IResponseHandler | any> = []
+    handlers: Array<IResponseHandler | ISessionHanlder> = []
   ) {
     for (let i = 0; i < handlers.length; i++) {
       const handler = handlers[i];
-      if (handler.type) {
+      if (!handler.type) {
         continue;
       }
       switch (handler.type) {
         case "response":
-          responseHandler.bind(context)(path, proxyConfig, handler);
+          responseHandler.bind(context)(
+            path,
+            proxyConfig,
+            handler as IResponseHandler
+          );
+          break;
+        case "session":
+          sessionHandler.bind(context)(
+            path,
+            proxyConfig,
+            handler as ISessionHanlder
+          );
           break;
         default:
           break;
@@ -81,6 +92,47 @@ function responseHandler(
             }
           }
           return res.json(ret);
+        }
+      });
+    } catch (err) {
+      res.json({
+        code: 99999,
+        message: err.message
+      });
+    }
+  }
+}
+
+function sessionHandler(
+  path: string,
+  proxyConfig: IProxyConfig,
+  handler: ISessionHanlder
+) {
+  const {
+    proxyRes,
+    req,
+    res
+  }: {
+    proxyRes: http.IncomingMessage;
+    req: express.Request;
+    res: express.Response;
+  } = this;
+  if (!proxyConfig) {
+    return;
+  }
+  // 自处理
+  if (handler && proxyConfig.selfHandleResponse === true) {
+    try {
+      readResponse(proxyRes, (data: any) => {
+        const { success } = handler.options;
+        const body = JSON.parse(data);
+
+        const okValue = get(body, success.key);
+        if (okValue === success.value) {
+          req.session.destroy(emptyFunction);
+          return res.json(body);
+        } else {
+          return res.json(body);
         }
       });
     } catch (err) {
