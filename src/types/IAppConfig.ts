@@ -1,19 +1,6 @@
 import httpProxy from "http-proxy-middleware";
-import { PropertyPath } from "lodash";
-import { IDynamicObject, IMapItem } from "../types/action";
-
-interface IHandleResponse {
-  success: {
-    key: PropertyPath;
-    value: string | number;
-    data?: IMapItem;
-  };
-  error?: {
-    key: PropertyPath,
-    value: string | number,
-    data?: IMapItem;
-  };
-}
+import { IDynamicObject } from "../types/action";
+import { IResponseHandler, ISessionHanlder } from "./handlers";
 
 export type sessionType = "session" | "jwt";
 
@@ -22,12 +9,7 @@ export type IProxyConfig = {
   dynamicHeader?: IDynamicObject;
   bodyMapping?: any;
   dynamicBody?: IDynamicObject;
-  afterResponse?: [
-    {
-      type: string;
-      handler: IHandleResponse;
-    }
-  ];
+  afterHandlers?: Array<IResponseHandler | ISessionHanlder>;
 } & httpProxy.Config;
 
 export default interface IAppConfig {
