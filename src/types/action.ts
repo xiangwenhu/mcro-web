@@ -23,3 +23,9 @@ export interface IMapItem {
     defaultValue?: any;
   };
 }
+
+export interface IStorageOption {
+  type: "session" | "cookie";
+  cmd: "save" | "delete" | "clear";
+  data?: IMapItem;
+}

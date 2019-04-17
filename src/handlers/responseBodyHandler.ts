@@ -4,7 +4,9 @@ import IAppConfig, { IProxyConfig } from "../types/IAppConfig";
 import readResponse from "./utils/readResponse";
 import { IResponseBodyHandlerOption } from "../types/handlers";
 import { get, set } from "../utils/common";
-import { IMapItem } from "src/types/action";
+import { IMapItem, IStorageOption } from "src/types/action";
+import sessionAction from "../action/session";
+import _ from "lodash";
 
 export default function responseBodyHandler(
   path: string,
@@ -33,15 +35,11 @@ export default function responseBodyHandler(
 
         const okValue = get(body, success.key);
         if (okValue === success.value) {
-          for (const [key, d] of Object.entries(success.data as IMapItem)) {
-            if (d.type === "session") {
-              set(req.session, key, get(body, d.path) || d.defaultValue);
-            } else if (d.type === "cookie") {
-              res.cookie(key, get(body, d.path) || d.defaultValue);
-            }
+          if (!_.isEmpty(success.storage)) {
+            handlerStorage(req, res, body, success.storage);
           }
           return res.json(body);
-        } else {       
+        } else {
           if (error) {
             set(body, error.key, error.value);
             if (error.data) {
@@ -62,4 +60,22 @@ export default function responseBodyHandler(
       });
     }
   }
+}
+
+function handlerStorage(
+  req: express.Request,
+  res: express.Response,
+  data,
+  storages: IStorageOption[] = []
+) {
+  storages.forEach((st) => {
+    switch (st.type) {
+      case "session":
+        const act = sessionAction[st.cmd];
+        act && act(req, data, st.data);
+        break;
+      default:
+        break;
+    }
+  });
 }

@@ -1,5 +1,5 @@
 import { PropertyPath } from "lodash";
-import { IMapItem } from "../types/action";
+import { IStorageOption, IMapItem } from "../types/action";
 import IAppConfig, { IProxyConfig } from "./IAppConfig";
 
 export type IHandler = (
@@ -20,7 +20,7 @@ export interface IResponseBodyHandlerOption {
     success: {
       key: PropertyPath;
       value: string | number;
-      data?: IMapItem;
+      storage?: IStorageOption[];
     };
     error?: {
       key: PropertyPath;

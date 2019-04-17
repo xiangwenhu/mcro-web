@@ -36,7 +36,6 @@ export default function preRender(
       });
       return;
     }
-
     res.cookie("appId", appId);
     const template = config.template;
     // 这里是预留给配置文件，配置文件html本身可以存储在数据库，或者oss, cdn或者网站上等等
