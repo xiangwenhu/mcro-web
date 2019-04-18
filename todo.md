@@ -12,10 +12,14 @@
     变通方便，请求acl带配置属性
 - [x] 支持存储数据 
   - 登录后 session/cookie
-- [ ] 抽象一些操作
-  - session 存值，删除
-  - http 请求取结果
+- [ ] Action 抽象一些操作
+  - session 存值，删除，清除
+  - cookie 存值， 删除
+  - header 设置
+  - body filter
+  - body merge
+  - body remap
 - [ ] 代理返回结果Filter
 - [ ] 支持App的全局配置
-- [ ] session和cookie操作的API?
-- [ ] Handler 分为 谓词 + action
+- [ ] Handler 分为 谓词 + action？
+- [ ] service worker支持？
