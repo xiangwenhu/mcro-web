@@ -1,6 +1,7 @@
 import express from "express";
 import httpProxy from "http-proxy-middleware";
 import _ from "lodash";
+
 import { AppConfigs, getProxyConfigByAppId } from "../demoConfig";
 import IAppConfig from "../types/IAppConfig";
 
@@ -31,22 +32,15 @@ function createProxy(path: string) {
   };
 }
 
-/*
 function preMiddlewares() {
-  return function(
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) {
-    next();
-  };
-} */
+  return [];
+}
 
 export default (app: express.Express) => {
   const configs = AppConfigs;
   configs.forEach((config: IAppConfig) => {
     Object.keys(config.proxy).forEach((path) => {
-      app.use(path, createProxy(path));
+      app.use(path, ...preMiddlewares(), createProxy(path));
     });
   });
 };

@@ -5,6 +5,7 @@
 - [x] 请求数据格式问题    
   * json
   * x-www-form-urlencoded
+  * FormData 会多出临时文件
 - [x] 代理额外的 headers, body , query 等等   
     headers 支持   
     body 未支持
