@@ -8,6 +8,7 @@ export type IProxyConfig = {
   dynamicBody?: IDynamicObject;
   afterHandlers?: IHandlerOption[];
   beforeHandlers?: IHandlerOption[];
+  useFormData?: boolean;
 } & httpProxy.Config;
 
 export default interface IAppConfig {

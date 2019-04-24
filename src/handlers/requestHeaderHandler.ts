@@ -1,9 +1,9 @@
 import express from "express";
 import * as http from "http";
 import _ from "lodash";
-import { IHandlerOption } from "src/types/handlers";
-import IAppConfig, { IProxyConfig } from "src/types/IAppConfig";
-import headerAction from "../action/header";
+import { IHandlerOption } from "../types/handlers";
+import IAppConfig, { IProxyConfig } from "../types/IAppConfig";
+import { batchActions } from "../action";
 
 export default function requestHeaderHandler(
   path: string,
@@ -13,20 +13,28 @@ export default function requestHeaderHandler(
 ) {
   const {
     proxyReq,
-    req
+    req,
+    res
   }: {
     proxyReq: http.ClientRequest;
     req: express.Request;
+    res: express.Response
   } = this;
   if (!proxyConfig) {
     return;
   }
 
-  if (_.isEmpty(handlerOption)) {
+  if (_.isEmpty(handlerOption) || _.isEmpty(handlerOption.actions)) {
     return;
   }
-  headerAction(
+
+  batchActions({
     proxyReq,
-    req
-  )(handlerOption.options);
+    req,
+    res,
+    path,
+    appConfig,
+    proxyConfig
+  }, handlerOption);
+
 }

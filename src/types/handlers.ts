@@ -9,9 +9,15 @@ export type IHandler = (
   handlerOption: IHandlerOption
 ) => any;
 
+export interface IAction {
+  type: string;
+  context?: string[];
+  options?: any;
+}
+
 export interface IHandlerOption {
   type: string;
-  options: any;
+  actions?: IAction[];
 }
 
 export interface IResponseBodyHandlerOption {
@@ -27,14 +33,6 @@ export interface IResponseBodyHandlerOption {
       value: string | number;
       data?: IMapItem;
     };
-  };
-}
-
-export interface IRequestBodyHandlerOption {
-  type: "requestBody";
-  options?: {
-    extraBody: any;
-    bodyMapping: any;
   };
 }
 

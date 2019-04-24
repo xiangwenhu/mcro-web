@@ -4,7 +4,6 @@ import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import path from "path";
 import registerMiddleware from "./middleware";
-import multipart = require("connect-multiparty");
 
 const app: express.Express = express();
 
@@ -26,8 +25,9 @@ app.use(sesssion(CONFIG));
 app.use(express.static("public"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(multipart());
 /* 注册定制化中间件  */
 registerMiddleware(app);
 
-app.listen(3000);
+app.listen(3000, null, () => {
+  console.log("listen at port 3000");
+});

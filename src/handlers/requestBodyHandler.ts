@@ -2,15 +2,15 @@ import express from "express";
 import * as http from "http";
 import * as querystring from "querystring";
 import _ from "lodash";
-import { IRequestBodyHandlerOption } from "src/types/handlers";
-import IAppConfig, { IProxyConfig } from "src/types/IAppConfig";
-import { updateWith, reMapping } from "../utils/common";
+import { IHandlerOption } from "../types/handlers";
+import IAppConfig, { IProxyConfig } from "../types/IAppConfig";
+import { batchActions } from "../action";
 
 export default function requestBodyHandler(
   path: string,
   appConfig: IAppConfig,
   proxyConfig: IProxyConfig,
-  handlerOption: IRequestBodyHandlerOption
+  handlerOption: IHandlerOption
 ) {
   const {
     proxyReq,
@@ -32,22 +32,23 @@ export default function requestBodyHandler(
   if (
     contentType &&
     (contentType.includes("application/json") ||
-      contentType.includes("application/x-www-form-urlencoded"))
+      contentType.includes("application/x-www-form-urlencoded") ||
+      contentType.includes("multipart/form-data")
+    )
   ) {
     if (!req.body || !Object.keys(req.body).length) {
       return;
     }
-    let body = req.body;
-    // 额外的body
-    if (!_.isEmpty(handlerOption.options) && !_.isEmpty(handlerOption.options.extraBody)) {
-      body = updateWith(body, handlerOption.options.extraBody);
-    }
-    // TODO:: 额外的body, 需要读取session|cookie|config
-    // 字段重新映射
-    if (!_.isEmpty(handlerOption.options)  && handlerOption.options.bodyMapping) {
-      body = reMapping(body, handlerOption.options.bodyMapping);
-    }
+    const body = req.body;
 
+    batchActions({
+      proxyReq,
+      req,
+      path,
+      appConfig,
+      proxyConfig
+    }, handlerOption);
+    // TODO:: 额外的body, 需要读取session|cookie|config
     const bodyStr = contentType.includes("application/json")
       ? JSON.stringify(body)
       : querystring.stringify(body);

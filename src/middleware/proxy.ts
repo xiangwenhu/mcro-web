@@ -1,6 +1,7 @@
 import express from "express";
 import httpProxy from "http-proxy-middleware";
 import _ from "lodash";
+import multipart = require("connect-multiparty");
 
 import { AppConfigs, getProxyConfigByAppId } from "../demoConfig";
 import IAppConfig from "../types/IAppConfig";
@@ -32,15 +33,20 @@ function createProxy(path: string) {
   };
 }
 
-function preMiddlewares() {
-  return [];
+function preMiddlewares(appId: string, path: string) {
+  const middlewares = [];
+  const proxyConfig = getProxyConfigByAppId(appId, path);
+  if (proxyConfig.useFormData) {
+    middlewares.push(multipart());
+  }
+  return middlewares;
 }
 
 export default (app: express.Express) => {
   const configs = AppConfigs;
   configs.forEach((config: IAppConfig) => {
     Object.keys(config.proxy).forEach((path) => {
-      app.use(path, ...preMiddlewares(), createProxy(path));
+      app.use(path, ...preMiddlewares(config.appId, path), createProxy(path));
     });
   });
 };
