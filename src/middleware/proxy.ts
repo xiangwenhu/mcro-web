@@ -2,6 +2,7 @@ import express from "express";
 import httpProxy from "http-proxy-middleware";
 import _ from "lodash";
 import multipart = require("connect-multiparty");
+import auth from "../middleware/auth";
 
 import { AppConfigs, getProxyConfigByAppId } from "../demoConfig";
 import IAppConfig from "../types/IAppConfig";
@@ -36,9 +37,14 @@ function createProxy(path: string) {
 function preMiddlewares(appId: string, path: string) {
   const middlewares = [];
   const proxyConfig = getProxyConfigByAppId(appId, path);
-  if (proxyConfig.useFormData) {
+  // useFormData
+  if (proxyConfig.useFormData === true) {
     middlewares.push(multipart());
   }
+  if (proxyConfig.auth === true) {
+    middlewares.push(auth);
+  }
+  // auth
   return middlewares;
 }
 

@@ -10,7 +10,7 @@ const check = function(req: express.Request, res: express.Response) {
     });
   }
   return res.json({
-    code: 6000
+    code: 60000
   });
 };
 

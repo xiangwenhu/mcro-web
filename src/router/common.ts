@@ -1,42 +1,36 @@
 import express from "express";
 import uuidV4 from "uuid/v4";
 import multer from "multer";
-import alioss from "../service/alioss";
+import { getOSS } from "../service/alioss";
+import { getOSSOption } from "../demoConfig/index";
+import serviceAuth from "../middleware/serviceAuth";
 
 const router = express.Router();
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-router.get("/check", function(req: express.Request, res: express.Response) {
-  if (req.session && req.session.userName && req.session.logined) {
-    return res.json({
-      code: 0,
-      errCode: 0
-    });
-  }
-  return res.json({
-    code: 6000,
-    errCode: 6000
-  });
-});
+function getDefaultFilename(originalname) {
+  return Date.now() +
+    "-" +
+    uuidV4().replace(/-/gi, "") +
+    "-" +
+    originalname;
+}
 
 router.post(
   "/upload",
+  serviceAuth,
   upload.single("file"),
   async (req: express.Request, res: express.Response) => {
     try {
       const { file } = req;
       const { encoding, mimetype, size } = file;
 
-      const result = await alioss.upload(
-        Date.now() +
-          "-" +
-          uuidV4().replace(/-/gi, "") +
-          "-" +
-          file.originalname,
-        file.buffer
-      );
+      const ossOption = getOSSOption(req.cookies.appId);
+      const oss = getOSS(ossOption);
+
+      const result = await oss.upload(getDefaultFilename(file.originalname), file.buffer);
       res.json({
         code: 0,
         errCode: 0,

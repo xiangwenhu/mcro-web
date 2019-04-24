@@ -1,18 +1,27 @@
-import ossConfig from "../config/alioss";
 import OSS from "ali-oss";
+import IOSSOption from "../types/IOSSOption";
 
-const store = new OSS({
-  accessKeyId: ossConfig.accessKeyId,
-  accessKeySecret: ossConfig.accessKeySecret,
-  bucket: ossConfig.bucket,
-  region: ossConfig.region
-});
+export class OSSHelper {
+  private $option: IOSSOption;
+  private $store: OSS = null;
 
-export async function upload(filename: string, buffer: any) {
-  const result: OSS.PutObjectResult = await store.put(filename, buffer);
-  return result;
+  constructor(option: IOSSOption) {
+    this.$option = option;
+  }
+
+  get store() {
+    if (this.$store === null) {
+      this.$store = new OSS(this.$option);
+    }
+    return this.$store;
+  }
+
+  public async upload(filename: string, buffer: any) {
+    const result: OSS.PutObjectResult = await this.store.put(filename, buffer);
+    return result;
+  }
 }
 
-export default {
-  upload
-};
+export function getOSS(option: IOSSOption) {
+  return new OSSHelper(option);
+}

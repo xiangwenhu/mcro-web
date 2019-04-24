@@ -1,6 +1,7 @@
 import httpProxy from "http-proxy-middleware";
 import { IDynamicObject } from "../types/action";
 import { IHandlerOption } from "./handlers";
+import IOSSOption from "./IOSSOption";
 
 export type sessionType = "session" | "jwt";
 
@@ -9,6 +10,7 @@ export type IProxyConfig = {
   afterHandlers?: IHandlerOption[];
   beforeHandlers?: IHandlerOption[];
   useFormData?: boolean;
+  auth?: boolean;
 } & httpProxy.Config;
 
 export default interface IAppConfig {
@@ -20,5 +22,15 @@ export default interface IAppConfig {
   proxy?: {
     [key: string]: IProxyConfig;
   };
-  configData?: any;
+  configData?: IAppGeneralConfig;
+}
+
+export interface IAppGeneralConfig {
+  oss?: IOSSOption;
+  services?: {
+    [path: string]: {
+      auth: boolean;
+      data: any;
+    }
+  };
 }
