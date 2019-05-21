@@ -24,3 +24,5 @@
 - [ ] 支持App的全局配置
 - [ ] Handler 分为 谓词 + action？
 - [ ] service worker支持？
+- [ ] 多站同时运行   
+      通过重新映射header的属性值，
